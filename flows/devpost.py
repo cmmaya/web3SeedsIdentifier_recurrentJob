@@ -3,7 +3,6 @@ import time
 from datetime import datetime
 import sys
 import os
-import pandas as pd
 from bs4 import BeautifulSoup
 
 from selenium import webdriver
