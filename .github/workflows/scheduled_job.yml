@@ -49,7 +49,7 @@ jobs:
           echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
 
       - name: Run EthGlobal script
-        run: python flows/ethglobal.py
+        run: python flows/devpost.py
 
       - name: Run Merge script
         run: python flows/merge.py
