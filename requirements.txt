@@ -15,4 +15,4 @@ python-dotenv==1.0.1
 gspread==6.0.2
 oauth2client==4.1.3
 pydantic==2.7.1
-griffe
+griffe==0.36.4
