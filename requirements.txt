@@ -1,0 +1,17 @@
+# Core libraries (already in Python stdlib, no need to include):
+# - logging
+# - time
+# - datetime
+# - sys
+# - os
+# - typing
+
+# Third-party libraries:
+beautifulsoup4==4.12.3
+selenium==4.21.0
+webdriver-manager==4.0.1
+prefect==2.14.17
+python-dotenv==1.0.1
+gspread==6.0.2
+oauth2client==4.1.3
+pydantic==2.7.1
