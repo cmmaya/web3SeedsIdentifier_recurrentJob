@@ -12,7 +12,6 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 
 from prefect import flow, task
 
@@ -36,8 +35,31 @@ def fetch_ethglobal_winners():
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    
+    # Use direct path to Chrome in GitHub Actions
+    chrome_binary_path = "/usr/bin/google-chrome"
+    if os.path.exists(chrome_binary_path):
+        chrome_options.binary_location = chrome_binary_path
 
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    # Instead of using webdriver-manager, use direct path in GitHub Actions environment
+    driver_path = "/usr/bin/chromedriver"
+    
+    try:
+        # Try to create the driver with the direct path
+        logger.info(f"Attempting to use ChromeDriver at: {driver_path}")
+        service = Service(executable_path=driver_path)
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+    except Exception as e:
+        logger.warning(f"Failed with direct driver path: {e}")
+        try:
+            # Fall back to letting Selenium find ChromeDriver
+            logger.info("Falling back to default ChromeDriver")
+            driver = webdriver.Chrome(options=chrome_options)
+        except Exception as e:
+            logger.error(f"Failed to initialize ChromeDriver: {e}")
+            return []
+    
     winners = []
 
     try:
