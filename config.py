@@ -30,5 +30,10 @@ SPREADSHEETS = {
         "sheet_id": os.getenv("ALLIANCE_SHEET_ID"),
         "worksheet_name": os.getenv("ALLIANCE_WORKSHEET_NAME", "Sheet1")
     }
+    ,
+    "cryptorank": {
+        "sheet_id": os.getenv("CRYPTORANK_SHEET_ID"),
+        "worksheet_name": os.getenv("CRYPTORANK_WORKSHEET_NAME", "Sheet1")
+    }
     # Add other flows here
 }
