@@ -66,11 +66,6 @@ def fetch_cryptorank_funding_rounds(pages=3):
     chrome_options.add_argument("--disable-dev-shm-usage")
 
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
-    # Use direct path to correct driver
-    driver_path = r"C:\Users\Camilo\.wdm\drivers\chromedriver\win64\136.0.7103.113\chromedriver-win32\chromedriver.exe"
-    service = Service(executable_path=driver_path)
-    driver = webdriver.Chrome(service=service, options=chrome_options)
     projects = []
     target_rounds = ["Seed", "Grant", "Pre-Seed", "Angel", "Extended Seed"]
 
@@ -175,10 +170,6 @@ def fetch_project_details(projects):
     chrome_options.add_argument("--disable-dev-shm-usage")
 
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
-    driver_path = r"C:\Users\Camilo\.wdm\drivers\chromedriver\win64\136.0.7103.113\chromedriver-win32\chromedriver.exe"
-    service = Service(executable_path=driver_path)
-    driver = webdriver.Chrome(service=service, options=chrome_options)
 
     enriched_projects = []
 
