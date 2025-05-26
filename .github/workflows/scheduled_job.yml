@@ -48,8 +48,6 @@ jobs:
           echo '${{ secrets.ENV_FILE }}' > .env
           echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
 
-      - name: Run EthGlobal script
-        run: python flows/devpost.py
 
-      - name: Run Merge script
-        run: python flows/merge.py
+      - name: Run CryptoRank script
+        run: python flows/cryptorank.py
