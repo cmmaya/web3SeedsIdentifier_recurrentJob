@@ -2,7 +2,7 @@ name: Scheduled Python Job
 
 on:
   schedule:
-    - cron: "*/1 * * * *" # Runs every 1 minute
+    - cron: "0 0 * * *"  # Runs every day at midnight (00:00)
   workflow_dispatch:
 
 jobs:
@@ -54,3 +54,18 @@ jobs:
 
       - name: Run CryptoRank script
         run: python flows/cryptorank.py
+        
+      - name: Run ETH Global script
+        run: python flows/ethglobal.py
+        
+      - name: Run Alliance DAO script
+        run: python flows/alliance.py
+        
+      - name: Run Eth Global script
+        run: python flows/ethglobal.py
+        
+      - name: Run GitCoin script
+        run: python flows/gitcoin.py
+
+      - name: Run Merge script
+        run: python flows/merge.py
