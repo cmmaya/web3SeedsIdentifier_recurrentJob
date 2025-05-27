@@ -50,4 +50,4 @@ jobs:
 
 
       - name: Run CryptoRank script
-        run: python flows/cryptorank.py
+        run: python flows/devposty.py
