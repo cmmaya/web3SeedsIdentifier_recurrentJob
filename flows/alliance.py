@@ -145,7 +145,7 @@ def store_alliance_companies(companies):
 
     headers = ["name", "link", "description", "categories", "fetched_at"]
     ws = get_worksheet("alliance")
-    existing_names = set(row['name'].strip().lower() for row in ws.get_all_records() if row.get('name'))
+    existing_names = set(str(row['name']).strip().lower() for row in ws.get_all_records() if row.get('name'))
 
     unique_companies = []
     for c in companies:
