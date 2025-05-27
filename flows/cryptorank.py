@@ -13,7 +13,13 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
+
+# Only import ChromeDriverManager for local development
+try:
+    from webdriver_manager.chrome import ChromeDriverManager
+    USE_WEBDRIVER_MANAGER = True
+except ImportError:
+    USE_WEBDRIVER_MANAGER = False
 
 from prefect import flow, task
 from dataclasses import dataclass, asdict
@@ -56,19 +62,44 @@ class CryptorankProject:
         return result
 
 
-@task
-def fetch_cryptorank_funding_rounds(pages=3):
-    """Fetch funding rounds from Cryptorank"""
-    base_url = "https://cryptorank.io/funding-rounds?page={}&rows=50"
+def create_chrome_driver():
+    """Create a Chrome WebDriver instance with proper configuration"""
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-logging")
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--allow-running-insecure-content")
+    chrome_options.add_argument("--window-size=1920,1080")
+    
+    # Check if we're in GitHub Actions or similar CI environment
+    if os.getenv('GITHUB_ACTIONS') == 'true' or os.path.exists('/usr/local/bin/chromedriver'):
+        # Use system ChromeDriver in CI environments
+        logger.info("Using system ChromeDriver")
+        service = Service('/usr/local/bin/chromedriver')
+    elif USE_WEBDRIVER_MANAGER:
+        # Use ChromeDriverManager for local development
+        logger.info("Using ChromeDriverManager")
+        service = Service(ChromeDriverManager().install())
+    else:
+        # Fallback to default ChromeDriver path
+        logger.info("Using default ChromeDriver path")
+        service = Service()
+    
+    return webdriver.Chrome(service=service, options=chrome_options)
 
-    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+
+@task
+def fetch_cryptorank_funding_rounds(pages=3):
+    """Fetch funding rounds from Cryptorank"""
+    base_url = "https://cryptorank.io/funding-rounds?page={}&rows=50"
     projects = []
     target_rounds = ["Seed", "Grant", "Pre-Seed", "Angel", "Extended Seed"]
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    
+    driver = create_chrome_driver()
 
     try:
         for page in range(1, pages + 1):
@@ -165,13 +196,7 @@ def fetch_cryptorank_funding_rounds(pages=3):
 @task
 def fetch_project_details(projects):
     """Fetch additional details for each project"""
-    chrome_options = Options()
-    chrome_options.add_argument("--headless")
-    chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--disable-dev-shm-usage")
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-
+    driver = create_chrome_driver()
     enriched_projects = []
 
     try:
