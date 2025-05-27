@@ -52,20 +52,11 @@ jobs:
           echo '${{ secrets.ENV_FILE }}' > .env
           echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
 
-      - name: Run CryptoRank script
-        run: python flows/cryptorank.py
-        
-      - name: Run ETH Global script
-        run: python flows/ethglobal.py
-        
-      - name: Run Alliance DAO script
-        run: python flows/alliance.py
-        
-      - name: Run Eth Global script
-        run: python flows/ethglobal.py
-        
-      - name: Run GitCoin script
-        run: python flows/gitcoin.py
-
-      - name: Run Merge script
-        run: python flows/merge.py
+      - name: Run all scripts
+        run: |
+          python flows/cryptorank.py || echo "CryptoRank failed"
+          python flows/ethglobal.py || echo "ETH Global failed"
+          python flows/alliance.py || echo "Alliance DAO failed"
+          python flows/gitcoin.py || echo "GitCoin failed"
+          python flows/devpost.py || echo "GitCoin failed"
+          python flows/merge.py || echo "Merge failed"
