@@ -15,6 +15,13 @@ from selenium.webdriver.support import expected_conditions as EC
 
 from prefect import flow, task
 
+# Only import ChromeDriverManager for local development
+try:
+    from webdriver_manager.chrome import ChromeDriverManager
+    USE_WEBDRIVER_MANAGER = True
+except ImportError:
+    USE_WEBDRIVER_MANAGER = False
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from models import EthGlobalWinner
 from google_sheets import get_worksheet, write_rows
@@ -27,6 +34,34 @@ except ImportError:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def create_chrome_driver():
+    """Create a Chrome WebDriver instance with proper configuration"""
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--disable-extensions")
+    chrome_options.add_argument("--disable-logging")
+    chrome_options.add_argument("--disable-web-security")
+    chrome_options.add_argument("--allow-running-insecure-content")
+    chrome_options.add_argument("--window-size=1920,1080")
+    
+    # Check if we're in GitHub Actions or similar CI environment
+    if os.getenv('GITHUB_ACTIONS') == 'true' or os.path.exists('/usr/local/bin/chromedriver'):
+        # Use system ChromeDriver in CI environments
+        logger.info("Using system ChromeDriver")
+        service = Service('/usr/local/bin/chromedriver')
+    elif USE_WEBDRIVER_MANAGER:
+        # Use ChromeDriverManager for local development
+        logger.info("Using ChromeDriverManager")
+        service = Service(ChromeDriverManager().install())
+    else:
+        # Fallback to default ChromeDriver path
+        logger.info("Using default ChromeDriver path")
+        service = Service()
+    
+    return webdriver.Chrome(service=service, options=chrome_options)
 
 @task
 def fetch_ethglobal_winners():
@@ -47,9 +82,7 @@ def fetch_ethglobal_winners():
     
     try:
         # Try to create the driver with the direct path
-        logger.info(f"Attempting to use ChromeDriver at: {driver_path}")
-        service = Service(executable_path=driver_path)
-        driver = webdriver.Chrome(service=service, options=chrome_options)
+        driver = create_chrome_driver()
     except Exception as e:
         logger.warning(f"Failed with direct driver path: {e}")
         try:

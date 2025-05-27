@@ -18,6 +18,7 @@ SOURCE_SCORE = {
     'GitcoinChecker': 4,
     'AllianceDAO': 3,
     'Alliance': 5,
+    'Cryptorank': 5
 }
 
 def sanitize_document_id(text):
@@ -155,14 +156,39 @@ def store_merged_projects(projects):
     return len(new_rows)
 
 
+@task
+def merge_cryptorank():
+    ws = get_worksheet("cryptorank")
+    data = ws.get_all_records()
+    projects = []
+    for row in data:
+        name = row.get("name")
+        if not name:
+            continue
+        try:
+            project = Project(
+                id="cryptorank_" + sanitize_document_id(str(name).lower()),
+                name=name,
+                link=row.get("link", ""),
+                source="Cryptorank",
+                description=row.get("description", ""),
+                score=SOURCE_SCORE["Cryptorank"],
+                last_seen=datetime.utcnow()
+            )
+            projects.append(project)
+        except Exception as e:
+            logger.warning(f"⚠️ Skipping Cryptorank row: {e} | row: {row}")
+    return projects
+
 @flow(name="Merge All Sources Flow")
 def run_merge_flow():
     devpost = merge_devpost()
     gitcoin = merge_gitcoin()
     ethglobal = merge_ethglobal()
     alliance = merge_alliance()
+    cryptorank = merge_cryptorank()
 
-    all_projects = devpost + gitcoin + ethglobal + alliance
+    all_projects = devpost + gitcoin + ethglobal + alliance + cryptorank
     count = store_merged_projects(all_projects)
     logger.info(f"🎯 Merge complete: {count} new projects stored.")
 

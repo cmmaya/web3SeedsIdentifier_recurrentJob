@@ -71,3 +71,17 @@ class Project(BaseModel):
     hackathon: Optional[str] = None
     score: int = 0
     last_seen: datetime = Field(default_factory=datetime.utcnow)
+
+class CryptorankProject:
+    """Data model for Cryptorank project"""
+    name: str
+    link: str
+    funding_amount: str
+    funding_type: str  # Seed, Grant, Pre-Seed, etc.
+    backers: List[str]  # List of backer names
+    funding_date: str
+    description: Optional[str] = None
+    website: Optional[str] = None
+    twitter: Optional[str] = None
+    linkedin: Optional[str] = None
+    fetched_at: datetime = None
