@@ -68,6 +68,7 @@ def fetch_cryptorank_funding_rounds(pages=3):
     # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
     projects = []
     target_rounds = ["Seed", "Grant", "Pre-Seed", "Angel", "Extended Seed"]
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
     try:
         for page in range(1, pages + 1):
@@ -169,7 +170,7 @@ def fetch_project_details(projects):
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    # driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
 
     enriched_projects = []
 
