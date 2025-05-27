@@ -17,26 +17,30 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Install Chrome
+      - name: Install Chrome and ChromeDriver
         run: |
+          # Install Chrome
           wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
           echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
           sudo apt-get update
           sudo apt-get install -y google-chrome-stable
-
-      - name: Install ChromeDriver
-        run: |
-          CHROME_VERSION=$(google-chrome --version | awk '{print $3}' | cut -d. -f1)
-          echo "Detected Chrome major version: $CHROME_VERSION"
-
-          # Use latest chromedriver available (not tied to major version)
-          CHROMEDRIVER_VERSION=$(curl -s https://chromedriver.storage.googleapis.com/LATEST_RELEASE)
-          echo "Using latest ChromeDriver version: $CHROMEDRIVER_VERSION"
-
-          curl -L -o chromedriver.zip "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_linux64.zip"
-          unzip chromedriver.zip
-          chmod +x chromedriver
-          sudo mv chromedriver /usr/local/bin/
+          
+          # Get Chrome version
+          CHROME_VERSION=$(google-chrome --version | awk '{print $3}')
+          echo "Chrome version: $CHROME_VERSION"
+          
+          # Install ChromeDriver using the new Chrome for Testing API
+          CHROMEDRIVER_VERSION=$(curl -s "https://googlechromelabs.github.io/chrome-for-testing/LATEST_RELEASE_STABLE")
+          echo "ChromeDriver version: $CHROMEDRIVER_VERSION"
+          
+          # Download and install ChromeDriver
+          wget -O chromedriver-linux64.zip "https://storage.googleapis.com/chrome-for-testing-public/$CHROMEDRIVER_VERSION/linux64/chromedriver-linux64.zip"
+          unzip chromedriver-linux64.zip
+          sudo mv chromedriver-linux64/chromedriver /usr/local/bin/
+          sudo chmod +x /usr/local/bin/chromedriver
+          
+          # Verify installation
+          chromedriver --version
 
       - name: Install dependencies
         run: |
@@ -48,6 +52,5 @@ jobs:
           echo '${{ secrets.ENV_FILE }}' > .env
           echo '${{ secrets.GOOGLE_CREDENTIALS }}' > credentials.json
 
-
       - name: Run CryptoRank script
-        run: python flows/ethglobal.py
+        run: python flows/cryptorank.py
